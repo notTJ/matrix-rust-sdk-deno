@@ -9,40 +9,49 @@ const release = !!flags.release;
 
 const fetchPrefix = typeof flags.release == "string"
   ? flags.release
-  : "../target/" + (release ? "release" : "debug");
-
-const bindingsPrefix = "/bindings/matrix-sdk-crypto-deno";
+  : "./target/" + (release ? "release" : "debug");
 
 async function build() {
-  const cmd = ["cargo", "build"];
+  let cmd = ["cargo", "clean"];
+  let proc; // = Deno.run({ cmd });
+
+  cmd = ["cargo", "build"];
   if (release) cmd.push("--release");
   cmd.push(...flags["--"]);
-  const proc = Deno.run({ cmd });
+  proc = Deno.run({ cmd });
+  
   return proc.status();
 }
 
-// debugging
-async function printDir() {
-  try {
-    for await (const dirEntry of Deno.readDir('../')) {
-      console.log(dirEntry);
-    }
-  } catch (err) {
-    console.error(err);
-  }
-}
+// async function listDir() {
+
+  
+//   console.log('listy');
+//   try {
+//     const dirResult = Deno.readDir("./");
+//     console.log(dirResult);
+//     for (const dirEntry of Deno.readDirSync("./")) {
+//       console.log(dirEntry);
+//       if (dirEntry.isDirectory) {
+//         console.log("dir");
+//       }
+//     }
+//   } catch (err) {
+//     console.error(err);
+//   }
+// }
+
 
 let source = null;
 async function generate() {
+  // listDir();
   let conf;
   try {
-    conf = JSON.parse(await Deno.readTextFile("bindings.json"));
-    console.log(conf);
+    conf = JSON.parse(await Deno.readTextFile("./bindings.json"));
   } catch (_) {
     // Nothing to update.
     return;
   }
-
   const pkgName = conf.name;
 
   source = "// Auto-generated with deno_bindgen\n";
@@ -58,22 +67,22 @@ async function generate() {
     },
   );
 
-  await Deno.remove("bindings.json");
+  await Deno.remove("./bindings.json");
 }
 
 try {
-  await Deno.remove("bindings.json");
+  await Deno.remove("./bindings.json");
 } catch (e) {
   // no op
+  console.log(e);
 }
 
-const status = await build().catch((_) => Deno.removeSync("bindings.json"));
+const status = await build().catch((_) => Deno.removeSync("./bindings.json"));
 if (status?.success || typeof flags.release == "string") {
   await generate();
   if (source) {
-    console.log(`${bindingsPrefix}/bindings`);
-    await ensureDir(`${bindingsPrefix}/bindings`);
-    await Deno.writeTextFile(`${bindingsPrefix}/bindings/bindings.ts`, source);
+    await ensureDir("./bindings");
+    await Deno.writeTextFile("./bindings/bindings.ts", source);
   }
 }
 
