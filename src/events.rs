@@ -33,7 +33,7 @@ pub enum HistoryVisibility {
     WorldReadable,
 }
 
-impl From<HistoryVisibility> for RumaHistoryVisibility {
+impl From<HistoryVisibility> for RumaHistoryVisibility { // ruma::events::room::history_visibility::HistoryVisibility {
     fn from(value: HistoryVisibility) -> Self {
         use HistoryVisibility::*;
 

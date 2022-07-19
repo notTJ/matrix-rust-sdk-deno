@@ -611,7 +611,7 @@ dependencies = [
  "sha2 0.10.2",
  "thiserror",
  "tracing",
- "vodozemac",
+ "vodozemac 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "zeroize",
 ]
 
@@ -619,6 +619,7 @@ dependencies = [
 name = "matrix-sdk-crypto-deno"
 version = "0.0.1"
 dependencies = [
+ "anyhow",
  "deno_bindgen",
  "http",
  "matrix-sdk-common",
@@ -626,6 +627,8 @@ dependencies = [
  "ruma 0.6.3",
  "serde",
  "serde_json",
+ "vodozemac 0.2.0 (git+https://github.com/matrix-org/vodozemac/?rev=d0e744287a14319c2a9148fef3747548c740fc36)",
+ "zeroize",
 ]
 
 [[package]]
@@ -1021,9 +1024,9 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "serde"
-version = "1.0.138"
+version = "1.0.139"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1578c6245786b9d168c5447eeacfb96856573ca56c9d68fdcf394be134882a47"
+checksum = "0171ebb889e45aa68b44aee0859b3eede84c6f5f5c228e6f140c0b2a0a46cad6"
 dependencies = [
  "serde_derive",
 ]
@@ -1039,9 +1042,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.138"
+version = "1.0.139"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "023e9b1467aef8a10fb88f25611870ada9800ef7e22afce356bb0d2387b6f27c"
+checksum = "dc1d3230c1de7932af58ad8ffbe1d784bd55efd5a9d84ac24f69c72d83543dfb"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1291,6 +1294,29 @@ name = "vodozemac"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3a42265bb5d65ba2807e477741ca3147a58d25ee5463860491fe0c24f4d21c1a"
+dependencies = [
+ "aes",
+ "arrayvec",
+ "base64",
+ "cbc",
+ "ed25519-dalek",
+ "hkdf",
+ "hmac",
+ "pkcs7",
+ "prost",
+ "rand 0.7.3",
+ "serde",
+ "serde_json",
+ "sha2 0.10.2",
+ "thiserror",
+ "x25519-dalek",
+ "zeroize",
+]
+
+[[package]]
+name = "vodozemac"
+version = "0.2.0"
+source = "git+https://github.com/matrix-org/vodozemac/?rev=d0e744287a14319c2a9148fef3747548c740fc36#d0e744287a14319c2a9148fef3747548c740fc36"
 dependencies = [
  "aes",
  "arrayvec",

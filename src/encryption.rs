@@ -1,16 +1,31 @@
 //! Encryption types & siblings.
-
+use deno_bindgen::deno_bindgen;
 use std::time::Duration;
 
 // use wasm_bindgen::prelude::*;
-
 use crate::events;
+
+/// An encryption algorithm to be used to encrypt messages sent to a
+/// room.
+// #[wasm_bindgen]
+#[deno_bindgen]
+#[derive(Debug, Clone)]
+pub enum EncryptionAlgorithm {
+    /// Olm version 1 using Curve25519, AES-256, and SHA-256.
+    OlmV1Curve25519AesSha2,
+
+    /// Megolm version 1 using AES-256 and SHA-256.
+    MegolmV1AesSha2,
+}
+
+// impl AsRef<str> for 
 
 /// Settings for an encrypted room.
 ///
 /// This determines the algorithm and rotation periods of a group
 /// session.
 // #[wasm_bindgen(getter_with_clone)]
+#[deno_bindgen]
 #[derive(Debug, Clone)]
 pub struct EncryptionSettings {
     /// The encryption algorithm that should be used in the room.
@@ -31,49 +46,59 @@ pub struct EncryptionSettings {
     pub history_visibility: events::HistoryVisibility,
 }
 
+impl Default for EncryptionSettings {
+    fn default() -> Self {
+        let default = matrix_sdk_crypto::olm::EncryptionSettings::default();
+
+        Self {
+            algorithm: default.algorithm.into(),
+            rotation_period: default.rotation_period.as_micros().try_into().unwrap(),
+            rotation_period_messages: default.rotation_period_msgs,
+            history_visibility: default.history_visibility.into(),
+        }
+    }
+}
+
+// #[wasm_bindgen]
+impl EncryptionSettings {
+    /// Create a new `EncryptionSettings` with default values.
+    // #[wasm_bindgen(constructor)]
+    pub fn new() -> EncryptionSettings {
+        Self::default()
+    }
+}
+
+// napi
 // impl Default for EncryptionSettings {
 //     fn default() -> Self {
 //         let default = matrix_sdk_crypto::olm::EncryptionSettings::default();
 
 //         Self {
 //             algorithm: default.algorithm.into(),
-//             rotation_period: default.rotation_period.as_micros().try_into().unwrap(),
-//             rotation_period_messages: default.rotation_period_msgs,
+//             rotation_period: {
+//                 let n: u64 = default.rotation_period.as_micros().try_into().unwrap();
+
+//                 n.into()
+//             },
+//             rotation_period_messages: {
+//                 let n = default.rotation_period_msgs;
+
+//                 n.into()
+//             },
 //             history_visibility: default.history_visibility.into(),
 //         }
 //     }
 // }
 
-// // #[wasm_bindgen]
-// impl EncryptionSettings {
-//     /// Create a new `EncryptionSettings` with default values.
-//     // #[wasm_bindgen(constructor)]
-//     pub fn new() -> EncryptionSettings {
-//         Self::default()
-//     }
-// }
-
-// impl From<&EncryptionSettings> for matrix_sdk_crypto::olm::EncryptionSettings {
-//     fn from(value: &EncryptionSettings) -> Self {
-//         Self {
-//             algorithm: value.algorithm.clone().into(),
-//             rotation_period: Duration::from_micros(value.rotation_period),
-//             rotation_period_msgs: value.rotation_period_messages,
-//             history_visibility: value.history_visibility.clone().into(),
-//         }
-//     }
-// }
-
-/// An encryption algorithm to be used to encrypt messages sent to a
-/// room.
-// #[wasm_bindgen]
-#[derive(Debug, Clone)]
-pub enum EncryptionAlgorithm {
-    /// Olm version 1 using Curve25519, AES-256, and SHA-256.
-    OlmV1Curve25519AesSha2,
-
-    /// Megolm version 1 using AES-256 and SHA-256.
-    MegolmV1AesSha2,
+impl From<&EncryptionSettings> for matrix_sdk_crypto::olm::EncryptionSettings {
+    fn from(value: &EncryptionSettings) -> Self {
+        Self {
+            algorithm: value.algorithm.clone().into(),
+            rotation_period: Duration::from_micros(value.rotation_period),
+            rotation_period_msgs: value.rotation_period_messages,
+            history_visibility: value.history_visibility.clone().into(),
+        }
+    }
 }
 
 impl From<EncryptionAlgorithm> for ruma::EventEncryptionAlgorithm {
@@ -101,6 +126,7 @@ impl From<ruma::EventEncryptionAlgorithm> for EncryptionAlgorithm {
 
 /// The verification state of the device that sent an event to us.
 // #[wasm_bindgen]
+#[deno_bindgen]
 #[derive(Debug)]
 pub enum VerificationState {
     /// The device is trusted.
@@ -121,6 +147,7 @@ impl From<&matrix_sdk_common::deserialized_responses::VerificationState> for Ver
             Trusted => Self::Trusted,
             Untrusted => Self::Untrusted,
             UnknownDevice => Self::UnknownDevice,
+            _ => unreachable!("Unknown variant"),
         }
     }
 }
